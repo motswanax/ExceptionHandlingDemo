@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using ExceptionHandlingDemo.Models;
+
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExceptionHandlingDemo.Controllers
@@ -46,6 +48,27 @@ namespace ExceptionHandlingDemo.Controllers
 
             ViewBag.RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
             ViewBag.ShowRequestId = !string.IsNullOrEmpty(ViewBag.RequestId);
+            ViewBag.ErrorStatusCode = code;
+
+            return View();
+        }
+
+        public IActionResult MyStatusCode2(int code)
+        {
+
+            var statusCodeReExecuteFeature = HttpContext.Features.Get<
+                                                   IStatusCodeReExecuteFeature>();
+            if (statusCodeReExecuteFeature != null)
+            {
+                ViewBag.OriginalURL =
+                    statusCodeReExecuteFeature.OriginalPathBase
+                    + statusCodeReExecuteFeature.OriginalPath
+                    + statusCodeReExecuteFeature.OriginalQueryString;
+            }
+
+            ViewBag.RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            ViewBag.ShowRequestId = !string.IsNullOrEmpty(ViewBag.RequestId);
+            ViewBag.ShowOriginalURL = !string.IsNullOrEmpty(ViewBag.OriginalURL);
             ViewBag.ErrorStatusCode = code;
 
             return View();
